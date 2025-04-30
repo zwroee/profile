@@ -4,12 +4,11 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Eye } from "lucide-react"
+import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Eye, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
 import AnimatedBackground from "@/components/animated-background"
-import { incrementViewCount, getViewCount } from "@/app/actions"
 
 // Array of pope quotes
 const popeQuotes = [
@@ -33,6 +32,25 @@ const popeQuotes = [
   "This is important: to get to know people, listen, expand the circle of ideas. The world is crisscrossed by roads that come closer together and move apart, but the important thing is that they lead towards the Good. - Pope Francis",
 ]
 
+// Client-side view counter functions
+const VIEW_COUNT_KEY = "profile_view_count"
+
+function getViewCount(): number {
+  if (typeof window === "undefined") return 0
+
+  const storedCount = localStorage.getItem(VIEW_COUNT_KEY)
+  return storedCount ? Number.parseInt(storedCount, 10) : 0
+}
+
+function incrementViewCount(): number {
+  if (typeof window === "undefined") return 0
+
+  const currentCount = getViewCount()
+  const newCount = currentCount + 1
+  localStorage.setItem(VIEW_COUNT_KEY, newCount.toString())
+  return newCount
+}
+
 export default function AboutMe() {
   const [activeTab, setActiveTab] = useState("about")
   const [isPlaying, setIsPlaying] = useState(false)
@@ -44,7 +62,6 @@ export default function AboutMe() {
   const [currentQuote, setCurrentQuote] = useState("")
   const [isAudioPlayerExpanded, setIsAudioPlayerExpanded] = useState(false)
   const [viewCount, setViewCount] = useState(0)
-  const [viewCountLoading, setViewCountLoading] = useState(true)
 
   useEffect(() => {
     // Create audio element
@@ -61,20 +78,8 @@ export default function AboutMe() {
     setCurrentQuote(popeQuotes[Math.floor(Math.random() * popeQuotes.length)])
 
     // Increment view count when component mounts
-    const incrementView = async () => {
-      try {
-        setViewCountLoading(true)
-        await incrementViewCount()
-        const count = await getViewCount()
-        setViewCount(count)
-      } catch (error) {
-        console.error("Error updating view count:", error)
-      } finally {
-        setViewCountLoading(false)
-      }
-    }
-
-    incrementView()
+    const newCount = incrementViewCount()
+    setViewCount(newCount)
 
     return () => {
       audio.pause()
@@ -210,7 +215,9 @@ export default function AboutMe() {
 
                 <div className="flex items-center gap-1 text-xs text-gray-400">
                   <Music className="h-3 w-3" />
-                  <span className="truncate">Now Playing: Ambient Music</span>
+                  <span className="truncate">
+                    Now Playing: my twenty first reason <Heart className="inline h-3 w-3" />
+                  </span>
                 </div>
               </div>
             ) : (
@@ -282,7 +289,7 @@ export default function AboutMe() {
                           {/* View counter badge */}
                           <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border border-gray-700">
                             <Eye className="h-3 w-3" />
-                            <span>{viewCountLoading ? "..." : viewCount.toLocaleString()}</span>
+                            <span>{viewCount.toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -314,18 +321,22 @@ export default function AboutMe() {
                       <div className="space-y-4">
                         <SpecItem
                           name="CPU"
-                          value="AMD Ryzen 9 5900X"
-                          details="12-Core, 24-Thread, 3.7GHz Base, 4.8GHz Boost"
+                          value="Ryzen 5 5600X"
+                          details="6-Core, 12-Thread, 3.7GHz Base, 4.6GHz Boost"
                         />
-                        <SpecItem name="GPU" value="NVIDIA RTX 3080 Ti" details="12GB GDDR6X" />
-                        <SpecItem name="RAM" value="32GB DDR4 3600MHz" details="Dual Channel, CL16" />
-                        <SpecItem name="Motherboard" value="ASUS ROG X570" details="ATX Form Factor" />
+                        <SpecItem name="GPU" value="NVIDIA RTX 3060" details="12GB GDDR6X" />
+                        <SpecItem name="RAM" value="32GB DDR4 3200MHz" details="Dual Channel, CL16" />
+                        <SpecItem name="Motherboard" value="ASROCK B450M PRO R2.0" details="MINI ATX Form Factor" />
                       </div>
                       <div className="space-y-4">
-                        <SpecItem name="Storage" value="2TB NVMe SSD + 4TB HDD" details="PCIe Gen 4.0 + 7200RPM" />
-                        <SpecItem name="PSU" value="850W 80+ Gold" details="Fully Modular" />
-                        <SpecItem name="Cooling" value="360mm AIO Liquid Cooler" details="RGB Fans" />
-                        <SpecItem name="Monitor" value='27" 4K 144Hz' details="IPS Panel, HDR600" />
+                        <SpecItem
+                          name="Storage"
+                          value="500GB NVMe SSD + 1TB INTERNAL SSD"
+                          details="PCIe Gen 4.0"
+                        />
+                        <SpecItem name="PSU" value="600W 80+ Gold" details="Fully Modular" />
+                        <SpecItem name="Cooling" value="Thermalright Aqua Elite 360" details="RGB Fans" />
+                        <SpecItem name="Monitor" value='24.5" 1080 180Hz' details="IPS Monitor, HDR10" />
                       </div>
                     </div>
                   </div>
@@ -338,20 +349,20 @@ export default function AboutMe() {
                       <SocialLink
                         icon={<Github className="w-6 h-6" />}
                         name="GitHub"
-                        username="johndoe"
-                        url="https://github.com/johndoe"
+                        username="zwroee"
+                        url="https://github.com/zwroee"
                       />
                       <SocialLink
                         icon={<Headphones className="w-6 h-6" />}
                         name="Last.fm"
-                        username="johndoe"
-                        url="https://last.fm/user/johndoe"
+                        username="k33333333333"
+                        url="https://last.fm/user/k33333333333"
                       />
                       <SocialLink
                         icon={<Cloud className="w-6 h-6" />}
                         name="SoundCloud"
-                        username="johndoe"
-                        url="https://soundcloud.com/johndoe"
+                        username="zwroe"
+                        url="https://soundcloud.com/zwroe"
                       />
                     </div>
                   </div>
