@@ -296,8 +296,8 @@ export default function AboutMe() {
 
                       {/* Content that can expand */}
                       <div className="flex-grow space-y-4">
-                        <h2 className="text-3xl font-bold">John Doe</h2>
-                        <p className="text-lg text-gray-300">Full Stack Developer & Designer</p>
+                        <h2 className="text-3xl font-bold">zwroe</h2>
+                        <p className="text-lg text-gray-300">Bot Developer/Prepaid Reseller.</p>
                         <div className="space-y-2">
                           <motion.p
                             className="text-gray-300 italic border-l-4 border-white/50 pl-4 py-2"
