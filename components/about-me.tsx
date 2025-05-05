@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Music, Pause, Play, Volume2, VolumeX, Heart, Bitcoin } from "lucide-react"
+import { Music, Pause, Play, Volume2, VolumeX, Heart, Bitcoin, Github, Headphones, Cloud } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
@@ -390,6 +390,30 @@ export default function AboutMe() {
 
                 <TabsContent value="social" className="mt-0">
                   <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20">
+                    {/* Social Media Links */}
+                    <h2 className="text-2xl font-bold mb-6">Connect With Me</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                      <SocialLink
+                        icon={<Github className="w-6 h-6" />}
+                        name="GitHub"
+                        username="zwroee"
+                        url="https://github.com/zwroee"
+                      />
+                      <SocialLink
+                        icon={<Headphones className="w-6 h-6" />}
+                        name="Last.fm"
+                        username="k33333333333"
+                        url="https://last.fm/user/k33333333333"
+                      />
+                      <SocialLink
+                        icon={<Cloud className="w-6 h-6" />}
+                        name="SoundCloud"
+                        username="zwroe"
+                        url="https://soundcloud.com/zwroe"
+                      />
+                    </div>
+
+                    {/* Cryptocurrency Addresses */}
                     <h2 className="text-2xl font-bold mb-6">Cryptocurrency Addresses</h2>
                     <div className="grid grid-cols-1 gap-4">
                       <CryptoAddress
@@ -450,6 +474,36 @@ function SpecItem({ name, value, details }: SpecItemProps) {
       <div className="text-sm text-gray-400">{details}</div>
       <div className="h-[1px] bg-gray-700 mt-2"></div>
     </motion.div>
+  )
+}
+
+interface SocialLinkProps {
+  icon: React.ReactNode
+  name: string
+  username: string
+  url: string
+}
+
+function SocialLink({ icon, name, username, url }: SocialLinkProps) {
+  return (
+    <motion.a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex flex-col items-center justify-center p-6 rounded-lg bg-gray-900/30 hover:bg-gray-800/50 transition-colors"
+      whileHover={{
+        scale: 1.05,
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        boxShadow: "0 0 20px rgba(255, 255, 255, 0.1)",
+      }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <motion.div whileHover={{ rotate: 5, y: -5 }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
+        {icon}
+      </motion.div>
+      <span className="mt-2 font-medium">{name}</span>
+      <span className="text-sm text-gray-400">{username}</span>
+    </motion.a>
   )
 }
 
