@@ -32,11 +32,12 @@ const popeQuotes = [
   "This is important: to get to know people, listen, expand the circle of ideas. The world is crisscrossed by roads that come closer together and move apart, but the important thing is that they lead towards the Good. - Pope Francis",
 ]
 
-// Simplified view counter with fallback
+// IP-based view counter hook
 function useViewCounter() {
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const fetchViewCount = async () => {
     try {
@@ -64,16 +65,13 @@ function useViewCounter() {
       // Fallback to localStorage
       const storedCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
       setCount(storedCount)
-
-      // Increment localStorage count
-      localStorage.setItem("viewCount", (storedCount + 1).toString())
     } finally {
       setLoading(false)
     }
   }
 
-  // Manual increment function for testing
-  const incrementCount = async () => {
+  // Admin function to manually increment the counter (for testing only)
+  const adminIncrement = async () => {
     try {
       setLoading(true)
       const response = await fetch("/api/views", {
@@ -91,14 +89,19 @@ function useViewCounter() {
       }
     } catch (err) {
       console.error("Failed to increment view count:", err)
-
-      // Fallback to localStorage
-      const currentCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
-      const newCount = currentCount + 1
-      localStorage.setItem("viewCount", newCount.toString())
-      setCount(newCount)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Toggle admin mode with Shift+Click
+  const handleCounterClick = (e: React.MouseEvent) => {
+    if (e.shiftKey) {
+      setIsAdmin(!isAdmin)
+    } else if (isAdmin) {
+      adminIncrement()
+    } else {
+      fetchViewCount()
     }
   }
 
@@ -107,7 +110,7 @@ function useViewCounter() {
     fetchViewCount()
   }, [])
 
-  return { count, loading, error, refresh: fetchViewCount, increment: incrementCount }
+  return { count, loading, error, isAdmin, handleCounterClick }
 }
 
 export default function AboutMe() {
@@ -122,12 +125,7 @@ export default function AboutMe() {
   const [isAudioPlayerExpanded, setIsAudioPlayerExpanded] = useState(false)
 
   // Use the view counter hook
-  const {
-    count: viewCount,
-    loading: viewCountLoading,
-    refresh: refreshViewCount,
-    increment: incrementViewCount,
-  } = useViewCounter()
+  const { count: viewCount, loading: viewCountLoading, isAdmin, handleCounterClick } = useViewCounter()
 
   useEffect(() => {
     // Create audio element
@@ -384,15 +382,21 @@ export default function AboutMe() {
               >
                 <TabsContent value="about" className="mt-0">
                   <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20 relative">
-                    {/* Interactive view counter in top-right corner of the card */}
+                    {/* View counter in top-right corner of the card */}
                     <div
-                      className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border border-gray-700 cursor-pointer hover:bg-black/90 transition-colors"
-                      onClick={incrementViewCount}
-                      title="Click to increment view count"
+                      className={`absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border ${
+                        isAdmin ? "border-red-500" : "border-gray-700"
+                      } cursor-pointer hover:bg-black/90 transition-colors`}
+                      onClick={handleCounterClick}
+                      title={
+                        isAdmin
+                          ? "Admin mode: Click to increment (testing only)"
+                          : "IP-based view counter (Shift+Click for admin mode)"
+                      }
                     >
                       <Eye className="h-3 w-3" />
                       <span>{viewCountLoading ? "..." : viewCount.toLocaleString()}</span>
-                      <RefreshCw className="h-3 w-3 ml-1" />
+                      {isAdmin && <RefreshCw className="h-3 w-3 ml-1 text-red-400" />}
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-8">

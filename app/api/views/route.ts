@@ -43,26 +43,25 @@ async function updateViewData(data: any) {
 export async function GET(request: NextRequest) {
   try {
     // Get the visitor's IP address
-    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown"
-
-    console.log("Visitor IP:", ip)
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || request.ip || "unknown"
 
     // Get current view data
     const viewData = await getViewData()
 
-    // Always increment the view count for testing
-    viewData.totalViews++
-
     // Check if this IP has been recorded before
-    if (!viewData.uniqueIPs.includes(ip)) {
-      viewData.uniqueIPs.push(ip)
-    }
+    const isNewVisitor = !viewData.uniqueIPs.includes(ip)
 
-    await updateViewData(viewData)
+    // Only increment the counter for new visitors
+    if (isNewVisitor) {
+      viewData.uniqueIPs.push(ip)
+      viewData.totalViews++
+      await updateViewData(viewData)
+    }
 
     return NextResponse.json({
       views: viewData.totalViews,
       uniqueVisitors: viewData.uniqueIPs.length,
+      isNewVisitor: isNewVisitor,
       success: true,
     })
   } catch (error) {
@@ -77,16 +76,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Add a POST endpoint to manually increment the counter
-export async function POST() {
+// For admin/testing purposes only
+export async function POST(request: NextRequest) {
   try {
     const viewData = await getViewData()
+
+    // Force increment the counter (admin function)
     viewData.totalViews++
     await updateViewData(viewData)
 
     return NextResponse.json({
       views: viewData.totalViews,
+      uniqueVisitors: viewData.uniqueIPs.length,
       success: true,
+      message: "Counter manually incremented (admin function)",
     })
   } catch (error) {
     console.error("Error incrementing view count:", error)
