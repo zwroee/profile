@@ -32,21 +32,36 @@ const popeQuotes = [
   "This is important: to get to know people, listen, expand the circle of ideas. The world is crisscrossed by roads that come closer together and move apart, but the important thing is that they lead towards the Good. - Pope Francis",
 ]
 
-// Simplified view counter
+// IP-based view counter hook
 function useViewCounter() {
   const [count, setCount] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get the stored count or start at 1 if none exists
-    const storedCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
-    const newCount = storedCount + 1
+    // Fetch view count from API
+    async function fetchViewCount() {
+      try {
+        setLoading(true)
+        const response = await fetch("/api/views")
+        const data = await response.json()
 
-    // Update localStorage and state
-    localStorage.setItem("viewCount", newCount.toString())
-    setCount(newCount)
+        if (data.views !== undefined) {
+          setCount(data.views)
+        }
+      } catch (error) {
+        console.error("Failed to fetch view count:", error)
+        // Fallback to localStorage if API fails
+        const storedCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
+        setCount(storedCount)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchViewCount()
   }, [])
 
-  return count
+  return { count, loading }
 }
 
 export default function AboutMe() {
@@ -61,7 +76,7 @@ export default function AboutMe() {
   const [isAudioPlayerExpanded, setIsAudioPlayerExpanded] = useState(false)
 
   // Use the view counter hook
-  const viewCount = useViewCounter()
+  const { count: viewCount, loading: viewCountLoading } = useViewCounter()
 
   useEffect(() => {
     // Create audio element
@@ -135,11 +150,59 @@ export default function AboutMe() {
     }
   }
 
-  // Animation variants for page transitions
+  // Enhanced animation variants for page transitions
   const pageVariants = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 },
+    initial: (custom: string) => {
+      // Different initial states based on tab direction
+      if (custom === "right") {
+        return { opacity: 0, x: 50 }
+      } else if (custom === "left") {
+        return { opacity: 0, x: -50 }
+      }
+      return { opacity: 0, y: 20 }
+    },
+    animate: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+      },
+    },
+    exit: (custom: string) => {
+      // Different exit animations based on tab direction
+      if (custom === "right") {
+        return {
+          opacity: 0,
+          x: -50,
+          transition: { duration: 0.2 },
+        }
+      } else if (custom === "left") {
+        return {
+          opacity: 0,
+          x: 50,
+          transition: { duration: 0.2 },
+        }
+      }
+      return {
+        opacity: 0,
+        y: -20,
+        transition: { duration: 0.2 },
+      }
+    },
+  }
+
+  // Determine animation direction based on tab change
+  const getAnimationDirection = (tab: string) => {
+    const tabOrder = ["about", "specs", "social"]
+    const currentIndex = tabOrder.indexOf(activeTab)
+    const newIndex = tabOrder.indexOf(tab)
+
+    if (newIndex > currentIndex) return "right"
+    if (newIndex < currentIndex) return "left"
+    return "initial"
   }
 
   return (
@@ -233,7 +296,9 @@ export default function AboutMe() {
           <Tabs
             defaultValue="about"
             value={activeTab}
-            onValueChange={setActiveTab}
+            onValueChange={(value) => {
+              setActiveTab(value)
+            }}
             className="w-full max-w-4xl mx-auto"
           >
             <TabsList className="grid w-full grid-cols-3 mb-8 bg-black/50 backdrop-blur-md border border-gray-700">
@@ -257,21 +322,21 @@ export default function AboutMe() {
               </TabsTrigger>
             </TabsList>
 
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" custom={getAnimationDirection(activeTab)}>
               <motion.div
                 key={activeTab}
+                custom={getAnimationDirection(activeTab)}
                 initial="initial"
                 animate="animate"
                 exit="exit"
                 variants={pageVariants}
-                transition={{ duration: 0.3 }}
               >
                 <TabsContent value="about" className="mt-0">
                   <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20 relative">
-                    {/* View counter moved to top-right corner of the card */}
+                    {/* View counter in top-right corner of the card */}
                     <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border border-gray-700">
                       <Eye className="h-3 w-3" />
-                      <span>{viewCount.toLocaleString()}</span>
+                      <span>{viewCountLoading ? "..." : viewCount.toLocaleString()}</span>
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-8">
