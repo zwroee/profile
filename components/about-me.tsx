@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -37,21 +37,47 @@ export default function AboutMe() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [volume, setVolume] = useState(100)
+  const [volume, setVolume] = useState(70) // Default to 70% volume
   const [duration, setDuration] = useState(0)
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
   const [currentQuote, setCurrentQuote] = useState("")
   const [isAudioPlayerExpanded, setIsAudioPlayerExpanded] = useState(false)
+  const [autoplayFailed, setAutoplayFailed] = useState(false)
+
+  // Ref to track if we've attempted autoplay
+  const autoplayAttempted = useRef(false)
 
   useEffect(() => {
     // Create audio element
     const audio = new Audio("/music.mp3")
     setAudioElement(audio)
 
+    // Set initial volume
+    audio.volume = volume / 100
+
     // Set up event listeners
     audio.addEventListener("timeupdate", updateProgress)
     audio.addEventListener("loadedmetadata", () => {
       setDuration(audio.duration)
+
+      // Try to autoplay once the metadata is loaded
+      if (!autoplayAttempted.current) {
+        autoplayAttempted.current = true
+
+        // Attempt to play automatically
+        audio
+          .play()
+          .then(() => {
+            setIsPlaying(true)
+            setIsAudioPlayerExpanded(true) // Expand the player when autoplay works
+          })
+          .catch((error) => {
+            console.log("Autoplay prevented:", error)
+            setAutoplayFailed(true)
+            // Show a notification or expand the player to indicate music is available
+            setIsAudioPlayerExpanded(true)
+          })
+      }
     })
 
     // Set initial random quote
@@ -79,7 +105,14 @@ export default function AboutMe() {
       if (isPlaying) {
         audioElement.pause()
       } else {
-        audioElement.play()
+        audioElement
+          .play()
+          .then(() => {
+            // Play started successfully
+          })
+          .catch((error) => {
+            console.log("Play prevented:", error)
+          })
       }
       setIsPlaying(!isPlaying)
     }
@@ -214,7 +247,7 @@ export default function AboutMe() {
                       variant="ghost"
                       size="icon"
                       onClick={togglePlay}
-                      className="h-8 w-8 text-white hover:text-gray-300"
+                      className={`h-8 w-8 text-white hover:text-gray-300 ${autoplayFailed && !isPlaying ? "animate-pulse" : ""}`}
                     >
                       {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                     </Button>
@@ -273,7 +306,7 @@ export default function AboutMe() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsAudioPlayerExpanded(true)}
-                className="h-8 w-8 p-0 text-white hover:text-gray-300"
+                className={`h-8 w-8 p-0 text-white hover:text-gray-300 ${autoplayFailed && !isPlaying ? "animate-pulse" : ""}`}
               >
                 <Music className="h-5 w-5" />
               </Button>
@@ -310,11 +343,11 @@ export default function AboutMe() {
                 Social
               </TabsTrigger>
 
-              {/* Animated background for active tab */}
+              {/* Animated background for active tab - fixed contrast issue */}
               <AnimatePresence>
                 {activeTab === "about" && (
                   <motion.div
-                    className="absolute top-0 left-0 bottom-0 w-1/3 bg-white/10 backdrop-blur-lg"
+                    className="absolute top-0 left-0 bottom-0 w-1/3 bg-gray-700/50 backdrop-blur-lg"
                     initial="initial"
                     animate="animate"
                     exit="exit"
@@ -324,7 +357,7 @@ export default function AboutMe() {
                 )}
                 {activeTab === "specs" && (
                   <motion.div
-                    className="absolute top-0 left-1/3 bottom-0 w-1/3 bg-white/10 backdrop-blur-lg"
+                    className="absolute top-0 left-1/3 bottom-0 w-1/3 bg-gray-700/50 backdrop-blur-lg"
                     initial="initial"
                     animate="animate"
                     exit="exit"
@@ -334,7 +367,7 @@ export default function AboutMe() {
                 )}
                 {activeTab === "social" && (
                   <motion.div
-                    className="absolute top-0 left-2/3 bottom-0 w-1/3 bg-white/10 backdrop-blur-lg"
+                    className="absolute top-0 left-2/3 bottom-0 w-1/3 bg-gray-700/50 backdrop-blur-lg"
                     initial="initial"
                     animate="animate"
                     exit="exit"
