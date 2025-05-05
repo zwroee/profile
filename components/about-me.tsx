@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Heart } from "lucide-react"
+import { Music, Pause, Play, Volume2, VolumeX, Heart, Bitcoin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
@@ -197,25 +197,6 @@ export default function AboutMe() {
     },
   }
 
-  // Tab indicator animation
-  const tabIndicatorVariants = {
-    initial: { opacity: 0, scale: 0.8 },
-    animate: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 500,
-        damping: 30,
-      },
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      transition: { duration: 0.2 },
-    },
-  }
-
   // Determine animation direction based on tab change
   const getAnimationDirection = (tab: string) => {
     const tabOrder = ["about", "specs", "social"]
@@ -323,59 +304,17 @@ export default function AboutMe() {
             }}
             className="w-full max-w-4xl mx-auto"
           >
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-black/50 backdrop-blur-md border border-gray-700 relative overflow-hidden">
-              <TabsTrigger
-                value="about"
-                className="data-[state=active]:text-white data-[state=active]:font-medium relative z-10"
-              >
+            {/* Fixed tab styling to match the screenshot */}
+            <TabsList className="grid w-full grid-cols-3 mb-8 bg-black border border-gray-700">
+              <TabsTrigger value="about" className="py-2 data-[state=active]:bg-white data-[state=active]:text-black">
                 About
               </TabsTrigger>
-              <TabsTrigger
-                value="specs"
-                className="data-[state=active]:text-white data-[state=active]:font-medium relative z-10"
-              >
+              <TabsTrigger value="specs" className="py-2 data-[state=active]:bg-white data-[state=active]:text-black">
                 PC Specs
               </TabsTrigger>
-              <TabsTrigger
-                value="social"
-                className="data-[state=active]:text-white data-[state=active]:font-medium relative z-10"
-              >
+              <TabsTrigger value="social" className="py-2 data-[state=active]:bg-white data-[state=active]:text-black">
                 Social
               </TabsTrigger>
-
-              {/* Animated background for active tab - fixed contrast issue */}
-              <AnimatePresence>
-                {activeTab === "about" && (
-                  <motion.div
-                    className="absolute top-0 left-0 bottom-0 w-1/3 bg-gray-700/50 backdrop-blur-lg"
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    variants={tabIndicatorVariants}
-                    layoutId="tab-indicator"
-                  />
-                )}
-                {activeTab === "specs" && (
-                  <motion.div
-                    className="absolute top-0 left-1/3 bottom-0 w-1/3 bg-gray-700/50 backdrop-blur-lg"
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    variants={tabIndicatorVariants}
-                    layoutId="tab-indicator"
-                  />
-                )}
-                {activeTab === "social" && (
-                  <motion.div
-                    className="absolute top-0 left-2/3 bottom-0 w-1/3 bg-gray-700/50 backdrop-blur-lg"
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    variants={tabIndicatorVariants}
-                    layoutId="tab-indicator"
-                  />
-                )}
-              </AnimatePresence>
             </TabsList>
 
             <AnimatePresence mode="wait" custom={getAnimationDirection(activeTab)}>
@@ -451,25 +390,31 @@ export default function AboutMe() {
 
                 <TabsContent value="social" className="mt-0">
                   <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20">
-                    <h2 className="text-2xl font-bold mb-6">Connect With Me</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <SocialLink
-                        icon={<Github className="w-6 h-6" />}
-                        name="GitHub"
-                        username="zwroee"
-                        url="https://github.com/zwroee"
+                    <h2 className="text-2xl font-bold mb-6">Cryptocurrency Addresses</h2>
+                    <div className="grid grid-cols-1 gap-4">
+                      <CryptoAddress
+                        icon={<Bitcoin className="w-6 h-6 text-orange-500" />}
+                        name="Bitcoin (BTC)"
+                        address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
                       />
-                      <SocialLink
-                        icon={<Headphones className="w-6 h-6" />}
-                        name="Last.fm"
-                        username="k33333333333"
-                        url="https://last.fm/user/k33333333333"
+                      <CryptoAddress
+                        icon={
+                          <svg className="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.251 23.739a11.626 11.626 0 0 1-2.05-.185 11.743 11.743 0 0 1-5.308-2.55 11.642 11.642 0 0 1-3.65-5.4A11.797 11.797 0 0 1 0 12.003a11.72 11.72 0 0 1 .915-4.56 11.697 11.697 0 0 1 2.55-3.752A11.795 11.795 0 0 1 7.146.975a11.703 11.703 0 0 1 8.105-.2 11.723 11.723 0 0 1 3.746 2.082 11.607 11.607 0 0 1 2.68 3.359 11.643 11.643 0 0 1 1.346 4.276c.052.471.052.946.052 1.417a11.84 11.84 0 0 1-.339 2.793 11.916 11.916 0 0 1-.969 2.52 11.688 11.688 0 0 1-3.437 4.027 11.761 11.761 0 0 1-4.405 2.082 11.92 11.92 0 0 1-2.674.408m.016-21.363c-.392 0-.79.026-1.182.084a9.456 9.456 0 0 0-5.286 2.536 9.438 9.438 0 0 0-2.674 4.477 9.404 9.404 0 0 0 .97 7.041 9.496 9.496 0 0 0 3.437 3.437 9.426 9.426 0 0 0 4.576 1.23 9.414 9.414 0 0 0 4.56-1.23 9.43 9.43 0 0 0 3.438-3.437 9.473 9.473 0 0 0 1.229-4.576c0-.376 0-.752-.047-1.128a9.435 9.435 0 0 0-2.674-6.007 9.33 9.33 0 0 0-2.978-1.97 9.397 9.397 0 0 0-3.369-.457" />
+                            <path d="M8.15 14.195c-.47.245-.94.49-.141.735-.47.245-.94.49-.141.735h5.286c.047-.245.094-.49.141-.735.047-.245.094-.49.141-.735H8.15zm.893-4.664c-.47.245-.94.49-.141.735-.47.245-.94.49-.141.735h3.5c.047-.245.094-.49.141-.735.047-.245.094-.49.141-.735h-3.5z" />
+                          </svg>
+                        }
+                        name="Litecoin (LTC)"
+                        address="ltc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
                       />
-                      <SocialLink
-                        icon={<Cloud className="w-6 h-6" />}
-                        name="SoundCloud"
-                        username="zwroe"
-                        url="https://soundcloud.com/zwroe"
+                      <CryptoAddress
+                        icon={
+                          <svg className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.372 4.35h.003zM12.056 0L4.69 12.223l7.365 4.354 7.365-4.35L12.056 0z" />
+                          </svg>
+                        }
+                        name="Ethereum (ETH)"
+                        address="0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
                       />
                     </div>
                   </div>
@@ -508,32 +453,47 @@ function SpecItem({ name, value, details }: SpecItemProps) {
   )
 }
 
-interface SocialLinkProps {
+interface CryptoAddressProps {
   icon: React.ReactNode
   name: string
-  username: string
-  url: string
+  address: string
 }
 
-function SocialLink({ icon, name, username, url }: SocialLinkProps) {
+function CryptoAddress({ icon, name, address }: CryptoAddressProps) {
+  const [copied, setCopied] = useState(false)
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(address)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
-    <motion.a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex flex-col items-center justify-center p-6 rounded-lg bg-gray-900/30 hover:bg-gray-800/50 transition-colors"
+    <motion.div
+      className="flex flex-col p-4 rounded-lg bg-gray-900/30 hover:bg-gray-800/50 transition-colors border border-gray-800"
       whileHover={{
-        scale: 1.05,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        boxShadow: "0 0 20px rgba(255, 255, 255, 0.1)",
+        scale: 1.02,
+        backgroundColor: "rgba(255, 255, 255, 0.05)",
+        boxShadow: "0 0 20px rgba(255, 255, 255, 0.05)",
       }}
-      whileTap={{ scale: 0.95 }}
     >
-      <motion.div whileHover={{ rotate: 5, y: -5 }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
+      <div className="flex items-center gap-3 mb-2">
         {icon}
-      </motion.div>
-      <span className="mt-2 font-medium">{name}</span>
-      <span className="text-sm text-gray-400">{username}</span>
-    </motion.a>
+        <span className="font-medium text-lg">{name}</span>
+      </div>
+      <div
+        className="flex items-center justify-between bg-black/30 p-3 rounded-md cursor-pointer group"
+        onClick={copyToClipboard}
+      >
+        <div className="overflow-hidden">
+          <p className="text-sm text-gray-400 truncate">{address}</p>
+        </div>
+        <div className="flex-shrink-0">
+          <span className={`text-xs ${copied ? "text-green-400" : "text-gray-500 group-hover:text-gray-300"}`}>
+            {copied ? "Copied!" : "Click to copy"}
+          </span>
+        </div>
+      </div>
+    </motion.div>
   )
 }
