@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   title: "zwroe",
   description: "⚡",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-icon.png",
+    icon: "public/favicon.ico",
+    apple: "public/apple-icon.png",
   },
     generator: 'v0.dev'
 }
