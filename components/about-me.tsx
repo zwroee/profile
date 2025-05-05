@@ -419,7 +419,7 @@ export default function AboutMe() {
                       <CryptoAddress
                         icon={<Bitcoin className="w-6 h-6 text-orange-500" />}
                         name="Bitcoin (BTC)"
-                        address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                        address="bc1q7xax9l02v5mrtr8a6ylfqec3t4upgx4xrmcd3s"
                       />
                       <CryptoAddress
                         icon={
@@ -429,7 +429,7 @@ export default function AboutMe() {
                           </svg>
                         }
                         name="Litecoin (LTC)"
-                        address="ltc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                        address="LWPU2p3AunJi3479XJc1nx6YWg7wY6taoy"
                       />
                       <CryptoAddress
                         icon={
@@ -438,7 +438,7 @@ export default function AboutMe() {
                           </svg>
                         }
                         name="Ethereum (ETH)"
-                        address="0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+                        address="0x4499f134310bA0f843Fb1a73B196D021c1CdbB2c"
                       />
                     </div>
                   </div>
