@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Eye, Heart } from "lucide-react"
+import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Eye, Heart, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
@@ -32,36 +32,82 @@ const popeQuotes = [
   "This is important: to get to know people, listen, expand the circle of ideas. The world is crisscrossed by roads that come closer together and move apart, but the important thing is that they lead towards the Good. - Pope Francis",
 ]
 
-// IP-based view counter hook
+// Simplified view counter with fallback
 function useViewCounter() {
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Fetch view count from API
-    async function fetchViewCount() {
-      try {
-        setLoading(true)
-        const response = await fetch("/api/views")
-        const data = await response.json()
+  const fetchViewCount = async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-        if (data.views !== undefined) {
-          setCount(data.views)
-        }
-      } catch (error) {
-        console.error("Failed to fetch view count:", error)
-        // Fallback to localStorage if API fails
-        const storedCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
-        setCount(storedCount)
-      } finally {
-        setLoading(false)
+      // Use a timestamp to prevent caching
+      const response = await fetch(`/api/views?t=${Date.now()}`)
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`)
       }
-    }
 
+      const data = await response.json()
+
+      if (data.views !== undefined) {
+        setCount(data.views)
+      } else {
+        throw new Error("Invalid response format")
+      }
+    } catch (err) {
+      console.error("Failed to fetch view count:", err)
+      setError(err instanceof Error ? err.message : "Unknown error")
+
+      // Fallback to localStorage
+      const storedCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
+      setCount(storedCount)
+
+      // Increment localStorage count
+      localStorage.setItem("viewCount", (storedCount + 1).toString())
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Manual increment function for testing
+  const incrementCount = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/views", {
+        method: "POST",
+      })
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data.views !== undefined) {
+        setCount(data.views)
+      }
+    } catch (err) {
+      console.error("Failed to increment view count:", err)
+
+      // Fallback to localStorage
+      const currentCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
+      const newCount = currentCount + 1
+      localStorage.setItem("viewCount", newCount.toString())
+      setCount(newCount)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Initial fetch
+  useEffect(() => {
     fetchViewCount()
   }, [])
 
-  return { count, loading }
+  return { count, loading, error, refresh: fetchViewCount, increment: incrementCount }
 }
 
 export default function AboutMe() {
@@ -76,7 +122,12 @@ export default function AboutMe() {
   const [isAudioPlayerExpanded, setIsAudioPlayerExpanded] = useState(false)
 
   // Use the view counter hook
-  const { count: viewCount, loading: viewCountLoading } = useViewCounter()
+  const {
+    count: viewCount,
+    loading: viewCountLoading,
+    refresh: refreshViewCount,
+    increment: incrementViewCount,
+  } = useViewCounter()
 
   useEffect(() => {
     // Create audio element
@@ -333,10 +384,15 @@ export default function AboutMe() {
               >
                 <TabsContent value="about" className="mt-0">
                   <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20 relative">
-                    {/* View counter in top-right corner of the card */}
-                    <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border border-gray-700">
+                    {/* Interactive view counter in top-right corner of the card */}
+                    <div
+                      className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border border-gray-700 cursor-pointer hover:bg-black/90 transition-colors"
+                      onClick={incrementViewCount}
+                      title="Click to increment view count"
+                    >
                       <Eye className="h-3 w-3" />
                       <span>{viewCountLoading ? "..." : viewCount.toLocaleString()}</span>
+                      <RefreshCw className="h-3 w-3 ml-1" />
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-8">

@@ -45,19 +45,57 @@ export async function GET(request: NextRequest) {
     // Get the visitor's IP address
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown"
 
+    console.log("Visitor IP:", ip)
+
     // Get current view data
     const viewData = await getViewData()
+
+    // Always increment the view count for testing
+    viewData.totalViews++
 
     // Check if this IP has been recorded before
     if (!viewData.uniqueIPs.includes(ip)) {
       viewData.uniqueIPs.push(ip)
-      viewData.totalViews++
-      await updateViewData(viewData)
     }
 
-    return NextResponse.json({ views: viewData.totalViews })
+    await updateViewData(viewData)
+
+    return NextResponse.json({
+      views: viewData.totalViews,
+      uniqueVisitors: viewData.uniqueIPs.length,
+      success: true,
+    })
   } catch (error) {
     console.error("Error processing view count:", error)
-    return NextResponse.json({ error: "Failed to process view count" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to process view count",
+        success: false,
+      },
+      { status: 500 },
+    )
+  }
+}
+
+// Add a POST endpoint to manually increment the counter
+export async function POST() {
+  try {
+    const viewData = await getViewData()
+    viewData.totalViews++
+    await updateViewData(viewData)
+
+    return NextResponse.json({
+      views: viewData.totalViews,
+      success: true,
+    })
+  } catch (error) {
+    console.error("Error incrementing view count:", error)
+    return NextResponse.json(
+      {
+        error: "Failed to increment view count",
+        success: false,
+      },
+      { status: 500 },
+    )
   }
 }
