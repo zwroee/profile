@@ -34,6 +34,7 @@ const popeQuotes = [
 
 // Client-side view counter functions
 const VIEW_COUNT_KEY = "profile_view_count"
+const LAST_VIEW_KEY = "profile_last_view"
 
 function getViewCount(): number {
   if (typeof window === "undefined") return 0
@@ -45,10 +46,22 @@ function getViewCount(): number {
 function incrementViewCount(): number {
   if (typeof window === "undefined") return 0
 
-  const currentCount = getViewCount()
-  const newCount = currentCount + 1
-  localStorage.setItem(VIEW_COUNT_KEY, newCount.toString())
-  return newCount
+  // Check if this is a new session (more than 30 minutes since last view)
+  const lastView = localStorage.getItem(LAST_VIEW_KEY)
+  const now = Date.now()
+  const thirtyMinutesInMs = 30 * 60 * 1000
+
+  if (!lastView || now - Number(lastView) > thirtyMinutesInMs) {
+    const currentCount = getViewCount()
+    const newCount = currentCount + 1
+    localStorage.setItem(VIEW_COUNT_KEY, newCount.toString())
+    localStorage.setItem(LAST_VIEW_KEY, now.toString())
+    return newCount
+  }
+
+  // Update last view time but don't increment count
+  localStorage.setItem(LAST_VIEW_KEY, now.toString())
+  return getViewCount()
 }
 
 export default function AboutMe() {
@@ -329,11 +342,7 @@ export default function AboutMe() {
                         <SpecItem name="Motherboard" value="ASROCK B450M PRO R2.0" details="MINI ATX Form Factor" />
                       </div>
                       <div className="space-y-4">
-                        <SpecItem
-                          name="Storage"
-                          value="500GB NVMe SSD + 1TB INTERNAL SSD"
-                          details="PCIe Gen 4.0"
-                        />
+                        <SpecItem name="Storage" value="500GB NVMe SSD + 1TB INTERNAL SSD" details="PCIe Gen 4.0" />
                         <SpecItem name="PSU" value="600W 80+ Gold" details="Fully Modular" />
                         <SpecItem name="Cooling" value="Thermalright Aqua Elite 360" details="RGB Fans" />
                         <SpecItem name="Monitor" value='24.5" 1080 180Hz' details="IPS Monitor, HDR10" />
