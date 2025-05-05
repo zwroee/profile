@@ -32,36 +32,21 @@ const popeQuotes = [
   "This is important: to get to know people, listen, expand the circle of ideas. The world is crisscrossed by roads that come closer together and move apart, but the important thing is that they lead towards the Good. - Pope Francis",
 ]
 
-// Client-side view counter functions
-const VIEW_COUNT_KEY = "profile_view_count"
-const LAST_VIEW_KEY = "profile_last_view"
+// Simplified view counter
+function useViewCounter() {
+  const [count, setCount] = useState(0)
 
-function getViewCount(): number {
-  if (typeof window === "undefined") return 0
+  useEffect(() => {
+    // Get the stored count or start at 1 if none exists
+    const storedCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
+    const newCount = storedCount + 1
 
-  const storedCount = localStorage.getItem(VIEW_COUNT_KEY)
-  return storedCount ? Number.parseInt(storedCount, 10) : 0
-}
+    // Update localStorage and state
+    localStorage.setItem("viewCount", newCount.toString())
+    setCount(newCount)
+  }, [])
 
-function incrementViewCount(): number {
-  if (typeof window === "undefined") return 0
-
-  // Check if this is a new session (more than 30 minutes since last view)
-  const lastView = localStorage.getItem(LAST_VIEW_KEY)
-  const now = Date.now()
-  const thirtyMinutesInMs = 30 * 60 * 1000
-
-  if (!lastView || now - Number(lastView) > thirtyMinutesInMs) {
-    const currentCount = getViewCount()
-    const newCount = currentCount + 1
-    localStorage.setItem(VIEW_COUNT_KEY, newCount.toString())
-    localStorage.setItem(LAST_VIEW_KEY, now.toString())
-    return newCount
-  }
-
-  // Update last view time but don't increment count
-  localStorage.setItem(LAST_VIEW_KEY, now.toString())
-  return getViewCount()
+  return count
 }
 
 export default function AboutMe() {
@@ -74,7 +59,9 @@ export default function AboutMe() {
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
   const [currentQuote, setCurrentQuote] = useState("")
   const [isAudioPlayerExpanded, setIsAudioPlayerExpanded] = useState(false)
-  const [viewCount, setViewCount] = useState(0)
+
+  // Use the view counter hook
+  const viewCount = useViewCounter()
 
   useEffect(() => {
     // Create audio element
@@ -89,10 +76,6 @@ export default function AboutMe() {
 
     // Set initial random quote
     setCurrentQuote(popeQuotes[Math.floor(Math.random() * popeQuotes.length)])
-
-    // Increment view count when component mounts
-    const newCount = incrementViewCount()
-    setViewCount(newCount)
 
     return () => {
       audio.pause()
@@ -284,9 +267,15 @@ export default function AboutMe() {
                 transition={{ duration: 0.3 }}
               >
                 <TabsContent value="about" className="mt-0">
-                  <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20">
+                  <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20 relative">
+                    {/* View counter moved to top-right corner of the card */}
+                    <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border border-gray-700">
+                      <Eye className="h-3 w-3" />
+                      <span>{viewCount.toLocaleString()}</span>
+                    </div>
+
                     <div className="flex flex-col md:flex-row gap-8">
-                      {/* Fixed size profile picture container with view counter */}
+                      {/* Fixed size profile picture container */}
                       <div className="flex-shrink-0 w-48">
                         <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-gray-500 relative group">
                           <img
@@ -298,12 +287,6 @@ export default function AboutMe() {
                               e.currentTarget.src = "/placeholder.svg?height=192&width=192"
                             }}
                           />
-
-                          {/* View counter badge */}
-                          <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border border-gray-700">
-                            <Eye className="h-3 w-3" />
-                            <span>{viewCount.toLocaleString()}</span>
-                          </div>
                         </div>
                       </div>
 
