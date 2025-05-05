@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Eye, Heart, RefreshCw } from "lucide-react"
+import { Github, Music, Pause, Play, Volume2, VolumeX, Headphones, Cloud, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
@@ -32,87 +32,6 @@ const popeQuotes = [
   "This is important: to get to know people, listen, expand the circle of ideas. The world is crisscrossed by roads that come closer together and move apart, but the important thing is that they lead towards the Good. - Pope Francis",
 ]
 
-// IP-based view counter hook
-function useViewCounter() {
-  const [count, setCount] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
-
-  const fetchViewCount = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      // Use a timestamp to prevent caching
-      const response = await fetch(`/api/views?t=${Date.now()}`)
-
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      if (data.views !== undefined) {
-        setCount(data.views)
-      } else {
-        throw new Error("Invalid response format")
-      }
-    } catch (err) {
-      console.error("Failed to fetch view count:", err)
-      setError(err instanceof Error ? err.message : "Unknown error")
-
-      // Fallback to localStorage
-      const storedCount = Number.parseInt(localStorage.getItem("viewCount") || "0")
-      setCount(storedCount)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Admin function to manually increment the counter (for testing only)
-  const adminIncrement = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch("/api/views", {
-        method: "POST",
-      })
-
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      if (data.views !== undefined) {
-        setCount(data.views)
-      }
-    } catch (err) {
-      console.error("Failed to increment view count:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Toggle admin mode with Shift+Click
-  const handleCounterClick = (e: React.MouseEvent) => {
-    if (e.shiftKey) {
-      setIsAdmin(!isAdmin)
-    } else if (isAdmin) {
-      adminIncrement()
-    } else {
-      fetchViewCount()
-    }
-  }
-
-  // Initial fetch
-  useEffect(() => {
-    fetchViewCount()
-  }, [])
-
-  return { count, loading, error, isAdmin, handleCounterClick }
-}
-
 export default function AboutMe() {
   const [activeTab, setActiveTab] = useState("about")
   const [isPlaying, setIsPlaying] = useState(false)
@@ -123,9 +42,6 @@ export default function AboutMe() {
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
   const [currentQuote, setCurrentQuote] = useState("")
   const [isAudioPlayerExpanded, setIsAudioPlayerExpanded] = useState(false)
-
-  // Use the view counter hook
-  const { count: viewCount, loading: viewCountLoading, isAdmin, handleCounterClick } = useViewCounter()
 
   useEffect(() => {
     // Create audio element
@@ -204,20 +120,22 @@ export default function AboutMe() {
     initial: (custom: string) => {
       // Different initial states based on tab direction
       if (custom === "right") {
-        return { opacity: 0, x: 50 }
+        return { opacity: 0, x: 100, scale: 0.95 }
       } else if (custom === "left") {
-        return { opacity: 0, x: -50 }
+        return { opacity: 0, x: -100, scale: 0.95 }
       }
-      return { opacity: 0, y: 20 }
+      return { opacity: 0, y: 50, scale: 0.95 }
     },
     animate: {
       opacity: 1,
       x: 0,
       y: 0,
+      scale: 1,
       transition: {
         type: "spring",
-        stiffness: 260,
-        damping: 20,
+        stiffness: 300,
+        damping: 25,
+        duration: 0.5,
       },
     },
     exit: (custom: string) => {
@@ -225,21 +143,43 @@ export default function AboutMe() {
       if (custom === "right") {
         return {
           opacity: 0,
-          x: -50,
-          transition: { duration: 0.2 },
+          x: -100,
+          scale: 0.95,
+          transition: { duration: 0.3 },
         }
       } else if (custom === "left") {
         return {
           opacity: 0,
-          x: 50,
-          transition: { duration: 0.2 },
+          x: 100,
+          scale: 0.95,
+          transition: { duration: 0.3 },
         }
       }
       return {
         opacity: 0,
-        y: -20,
-        transition: { duration: 0.2 },
+        y: -50,
+        scale: 0.95,
+        transition: { duration: 0.3 },
       }
+    },
+  }
+
+  // Tab indicator animation
+  const tabIndicatorVariants = {
+    initial: { opacity: 0, scale: 0.8 },
+    animate: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 30,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.8,
+      transition: { duration: 0.2 },
     },
   }
 
@@ -350,25 +290,59 @@ export default function AboutMe() {
             }}
             className="w-full max-w-4xl mx-auto"
           >
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-black/50 backdrop-blur-md border border-gray-700">
+            <TabsList className="grid w-full grid-cols-3 mb-8 bg-black/50 backdrop-blur-md border border-gray-700 relative overflow-hidden">
               <TabsTrigger
                 value="about"
-                className="data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-lg"
+                className="data-[state=active]:text-white data-[state=active]:font-medium relative z-10"
               >
                 About
               </TabsTrigger>
               <TabsTrigger
                 value="specs"
-                className="data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-lg"
+                className="data-[state=active]:text-white data-[state=active]:font-medium relative z-10"
               >
                 PC Specs
               </TabsTrigger>
               <TabsTrigger
                 value="social"
-                className="data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-lg"
+                className="data-[state=active]:text-white data-[state=active]:font-medium relative z-10"
               >
                 Social
               </TabsTrigger>
+
+              {/* Animated background for active tab */}
+              <AnimatePresence>
+                {activeTab === "about" && (
+                  <motion.div
+                    className="absolute top-0 left-0 bottom-0 w-1/3 bg-white/10 backdrop-blur-lg"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={tabIndicatorVariants}
+                    layoutId="tab-indicator"
+                  />
+                )}
+                {activeTab === "specs" && (
+                  <motion.div
+                    className="absolute top-0 left-1/3 bottom-0 w-1/3 bg-white/10 backdrop-blur-lg"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={tabIndicatorVariants}
+                    layoutId="tab-indicator"
+                  />
+                )}
+                {activeTab === "social" && (
+                  <motion.div
+                    className="absolute top-0 left-2/3 bottom-0 w-1/3 bg-white/10 backdrop-blur-lg"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={tabIndicatorVariants}
+                    layoutId="tab-indicator"
+                  />
+                )}
+              </AnimatePresence>
             </TabsList>
 
             <AnimatePresence mode="wait" custom={getAnimationDirection(activeTab)}>
@@ -382,23 +356,6 @@ export default function AboutMe() {
               >
                 <TabsContent value="about" className="mt-0">
                   <div className="bg-black/60 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-500/20 relative">
-                    {/* View counter in top-right corner of the card */}
-                    <div
-                      className={`absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs border ${
-                        isAdmin ? "border-red-500" : "border-gray-700"
-                      } cursor-pointer hover:bg-black/90 transition-colors`}
-                      onClick={handleCounterClick}
-                      title={
-                        isAdmin
-                          ? "Admin mode: Click to increment (testing only)"
-                          : "IP-based view counter (Shift+Click for admin mode)"
-                      }
-                    >
-                      <Eye className="h-3 w-3" />
-                      <span>{viewCountLoading ? "..." : viewCount.toLocaleString()}</span>
-                      {isAdmin && <RefreshCw className="h-3 w-3 ml-1 text-red-400" />}
-                    </div>
-
                     <div className="flex flex-col md:flex-row gap-8">
                       {/* Fixed size profile picture container */}
                       <div className="flex-shrink-0 w-48">
