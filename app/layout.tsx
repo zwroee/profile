@@ -9,10 +9,8 @@ export const metadata: Metadata = {
   title: "zwroe",
   description: "⚡",
   icons: {
-    icon: "public/favicon.png",
-    apple: "public/apple-icon.png",
+    icon: "/favicon.png",
   },
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
