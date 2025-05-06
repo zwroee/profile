@@ -11,11 +11,9 @@ export const metadata: Metadata = {
   title: "zwroe",
   description: "⚡",
   icons: {
-    icon: [
-      { url: "/favicon.png" },
-      { url: "/favicon.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
-    ],
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
     generator: 'v0.dev'
 }
