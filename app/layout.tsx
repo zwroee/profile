@@ -11,9 +11,7 @@ export const metadata: Metadata = {
   title: "zwroe",
   description: "⚡",
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: [{ url: "/favicon.png" }],
   },
     generator: 'v0.dev'
 }
