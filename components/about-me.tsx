@@ -8,7 +8,8 @@ import { Music, Pause, Play, Volume2, VolumeX, Heart, Bitcoin, Github, Headphone
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
-import AnimatedBackground from "@/components/animated-background"
+import ParticleBackground from "@/components/particle-background"
+import TypingEffect from "@/components/typing-effect"
 
 // Array of pope quotes
 const popeQuotes = [
@@ -210,7 +211,7 @@ export default function AboutMe() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
-      <AnimatedBackground />
+      <ParticleBackground />
 
       <div className="relative z-10">
         {/* Audio Player in top left */}
@@ -346,7 +347,13 @@ export default function AboutMe() {
 
                       {/* Content that can expand */}
                       <div className="flex-grow space-y-4">
-                        <h2 className="text-3xl font-bold">zwroe</h2>
+                        <h2 className="text-3xl font-bold">
+                          <TypingEffect
+                            texts={["zwroe", "zwroe | Bot Developer", "zwroe | Prepaid Reseller"]}
+                            typingSpeed={150}
+                            delayBetweenTexts={3000}
+                          />
+                        </h2>
                         <p className="text-lg text-gray-300">Bot Developer/Prepaid Reseller.</p>
                         <div className="space-y-2">
                           <motion.p
@@ -419,7 +426,7 @@ export default function AboutMe() {
                       <CryptoAddress
                         icon={<Bitcoin className="w-6 h-6 text-orange-500" />}
                         name="Bitcoin (BTC)"
-                        address="bc1q7xax9l02v5mrtr8a6ylfqec3t4upgx4xrmcd3s"
+                        address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
                       />
                       <CryptoAddress
                         icon={
@@ -429,7 +436,7 @@ export default function AboutMe() {
                           </svg>
                         }
                         name="Litecoin (LTC)"
-                        address="LWPU2p3AunJi3479XJc1nx6YWg7wY6taoy"
+                        address="ltc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
                       />
                       <CryptoAddress
                         icon={
@@ -438,7 +445,7 @@ export default function AboutMe() {
                           </svg>
                         }
                         name="Ethereum (ETH)"
-                        address="0x4499f134310bA0f843Fb1a73B196D021c1CdbB2c"
+                        address="0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
                       />
                     </div>
                   </div>
