@@ -8,7 +8,7 @@ import { Music, Pause, Play, Volume2, VolumeX, Heart, Bitcoin, Github, Headphone
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
-import ParticleBackground from "@/components/particle-background"
+import WaveParticleBackground from "@/components/wave-particle-background"
 import TypingEffect from "@/components/typing-effect"
 
 // Array of pope quotes
@@ -211,7 +211,7 @@ export default function AboutMe() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
-      <ParticleBackground />
+      <WaveParticleBackground />
 
       <div className="relative z-10">
         {/* Audio Player in top left */}
@@ -426,7 +426,7 @@ export default function AboutMe() {
                       <CryptoAddress
                         icon={<Bitcoin className="w-6 h-6 text-orange-500" />}
                         name="Bitcoin (BTC)"
-                        address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                        address="bc1q7xax9l02v5mrtr8a6ylfqec3t4upgx4xrmcd3s"
                       />
                       <CryptoAddress
                         icon={
@@ -436,7 +436,7 @@ export default function AboutMe() {
                           </svg>
                         }
                         name="Litecoin (LTC)"
-                        address="ltc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                        address="LWPU2p3AunJi3479XJc1nx6YWg7wY6taoy"
                       />
                       <CryptoAddress
                         icon={

@@ -73,21 +73,11 @@ export default function CustomCursor() {
   if (typeof window === "undefined") return null
 
   return (
-    <>
-      <div
-        className={`custom-cursor ${hidden ? "opacity-0" : "opacity-100"} ${linkHovered ? "cursor-grow" : ""} ${clicked ? "scale-90" : ""}`}
-        style={{
-          transform: `translate(${position.x - 10}px, ${position.y - 10}px)`,
-          backgroundColor: clicked ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.2)",
-          border: "1px solid rgba(255, 255, 255, 0.5)",
-        }}
-      />
-      <div
-        className={`custom-cursor-dot ${hidden ? "opacity-0" : "opacity-100"}`}
-        style={{
-          transform: `translate(${position.x - 2.5}px, ${position.y - 2.5}px)`,
-        }}
-      />
-    </>
+    <div
+      className={`custom-cursor-circle ${hidden ? "opacity-0" : "opacity-100"} ${linkHovered ? "cursor-grow" : ""} ${clicked ? "scale-90" : ""}`}
+      style={{
+        transform: `translate(${position.x - 15}px, ${position.y - 15}px)`,
+      }}
+    />
   )
 }
