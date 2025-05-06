@@ -8,7 +8,7 @@ import { Music, Pause, Play, Volume2, VolumeX, Heart, Bitcoin, Github, Headphone
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
-import WaveParticleBackground from "@/components/wave-particle-background"
+import StarfieldBackground from "@/components/starfield-background"
 import TypingEffect from "@/components/typing-effect"
 
 // Array of pope quotes
@@ -211,7 +211,7 @@ export default function AboutMe() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
-      <WaveParticleBackground />
+      <StarfieldBackground />
 
       <div className="relative z-10">
         {/* Audio Player in top left */}
