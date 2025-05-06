@@ -6,10 +6,14 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "zwroe",
-  description: "⚡",
+  title: "About Me",
+  description: "My personal about me page",
   icons: {
-    icon: "/favicon.png",
+    icon: [
+      { url: "/favicon.png" },
+      { url: "/favicon.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
+    ],
   },
 }
 
